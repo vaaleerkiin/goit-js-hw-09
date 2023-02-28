@@ -27,10 +27,10 @@ const submitHandler = e => {
   for (let i = 1; i <= amountInput; i += 1) {
     createPromise(i, step)
       .then(({ position, delay }) => {
-        Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`);
+        Notify.success(`Fulfilled promise ${position} in ${delay}ms`);
       })
       .catch(({ position, delay }) => {
-        Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`);
+        Notify.failure(`Rejected promise ${position} in ${delay}ms`);
       });
     step += stepInput;
   }

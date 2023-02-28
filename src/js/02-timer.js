@@ -1,4 +1,5 @@
 import flatpickr from 'flatpickr';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import 'flatpickr/dist/flatpickr.min.css';
 const LOCAL_KEY = 'DATE';
 let selectedUnixDate = null;
@@ -53,7 +54,7 @@ class dateTimer {
     let leftTime;
     return (timerId = setInterval(() => {
       leftTime = timer.convertMs(this.stopDate - new Date().getTime());
-      writeDateInHTML(leftTime);
+      this.writeDateInHTML(leftTime);
     }, 1000));
   }
   writeDateInHTML(time) {
@@ -73,14 +74,14 @@ refs.startBtn.addEventListener('click', () => {
     if (selectedUnixDate >= new Date()) {
       timer.secondsTimer();
       isActive = true;
-    } else window.alert('Please choose a date in the future');
+    } else Notify.failure(`Please choose a date in the future`);
   }
 });
 refs.clearBtn.addEventListener('click', () => {
   if (isActive) {
     isActive = false;
     clearInterval(timerId);
-    writeDateInHTML({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+    timer.writeDateInHTML({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   }
   localStorage.removeItem(LOCAL_KEY);
 });
