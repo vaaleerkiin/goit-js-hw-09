@@ -10,6 +10,8 @@ refs.startBtn.addEventListener('click', ev => {
     changeBodyColor();
     isActive = true;
     console.log('Start');
+    refs.startBtn.setAttribute('disabled', '');
+    refs.stopBtn.removeAttribute('disabled', '');
   }
 });
 
@@ -18,6 +20,8 @@ refs.stopBtn.addEventListener('click', ev => {
     console.log('Stop');
     isActive = false;
     clearInterval(timerId);
+    refs.stopBtn.setAttribute('disabled', '');
+    refs.startBtn.removeAttribute('disabled', '');
   }
 });
 

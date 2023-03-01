@@ -6,9 +6,6 @@ let selectedUnixDate = null;
 let timerId = null;
 let isActive = false;
 
-if (localStorage.getItem(LOCAL_KEY)) {
-  selectedUnixDate = JSON.parse(localStorage.getItem(LOCAL_KEY));
-}
 const refs = {
   startBtn: document.querySelector('[data-start]'),
   clearBtn: document.querySelector('[data-clear]'),
@@ -20,12 +17,12 @@ flatpickr('#datetime-picker', {
   altInput: true,
   enableTime: true,
   time_24hr: true,
-  defaultDate: JSON.parse(localStorage.getItem(LOCAL_KEY)),
+  defaultDate: new Date().getTime(),
   minuteIncrement: 1,
   onChange(selectedDates) {
-    localStorage.setItem(LOCAL_KEY, selectedDates[0].getTime());
-    selectedUnixDate = JSON.parse(localStorage.getItem(LOCAL_KEY));
     timer = null;
+    selectedUnixDate = selectedDates[0].getTime();
+
     timer = new dateTimer(selectedUnixDate);
   },
   onClose(selectedDates) {
@@ -52,7 +49,16 @@ class dateTimer {
   }
   secondsTimer() {
     let leftTime;
+    Notify.success(`Timer started`);
     return (timerId = setInterval(() => {
+      if (selectedUnixDate < new Date().getTime() + 1000) {
+        clearInterval(timerId);
+        Notify.success(`Time is up`);
+        isActive = false;
+        refs.clearBtn.setAttribute('disabled', '');
+        refs.startBtn.removeAttribute('disabled', '');
+      }
+
       leftTime = timer.convertMs(this.stopDate - new Date().getTime());
       this.writeDateInHTML(leftTime);
     }, 1000));
@@ -71,26 +77,18 @@ let timer = new dateTimer(selectedUnixDate);
 
 refs.startBtn.addEventListener('click', () => {
   if (!isActive) {
-    if (selectedUnixDate >= new Date()) {
+    if (selectedUnixDate >= new Date().getTime()) {
       timer.secondsTimer();
       isActive = true;
+      refs.startBtn.setAttribute('disabled', '');
+      refs.clearBtn.removeAttribute('disabled', '');
     } else Notify.failure(`Please choose a date in the future`);
   }
 });
 refs.clearBtn.addEventListener('click', () => {
-  if (isActive) {
-    isActive = false;
-    clearInterval(timerId);
-    timer.writeDateInHTML({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  }
-  localStorage.removeItem(LOCAL_KEY);
+  isActive = false;
+  clearInterval(timerId);
+  timer.writeDateInHTML({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  refs.clearBtn.setAttribute('disabled', '');
+  refs.startBtn.removeAttribute('disabled', '');
 });
-
-if (localStorage.getItem(LOCAL_KEY)) {
-  if (!isActive) {
-    if (timer.stopDate >= new Date()) {
-      timer.secondsTimer();
-      isActive = true;
-    }
-  }
-}
